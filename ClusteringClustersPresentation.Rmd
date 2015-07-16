@@ -63,6 +63,7 @@ readAllClusters<-function(x) {
                 side=factor(sub(".*_([LR])_.*","\\1",files)),
                 cluster=factor(sub("(.*)_([LR])_(.*)\\.[^.]+","\\3",files)),
                 stringsAsFactors=FALSE, row.names="key")
+  df$parentcluster=factor(sub("[A-Z]+","", df$cluster ))
   non_dup_paths <- paths[!duplicated(basename(paths))]
   tracings <- read.neurons(non_dup_paths, read.vaa3dflip, df=df,
                            neuronnames=rownames(df))
