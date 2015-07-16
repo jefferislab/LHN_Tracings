@@ -107,7 +107,7 @@ frontalView()
 ```{r allbyallsearch}
 library(nat.nblast)
 # convert to dot props for search
-fool.dps=dotprops(fool,k=5,resample=1)
+fool.dps=dotprops(fool,k=5,resample=1, .progress='text')
 fool.scoremat=nblast_allbyall(fool.dps)
 frontalView()
 ```
