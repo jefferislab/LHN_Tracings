@@ -39,7 +39,7 @@ readCluster<-function(x) {
                 side=factor(sub(".*_([LR])_.*","\\1",files)),
                 cluster=factor(sub("(.*)_([LR])_(.*)\\.[^.]+","\\3",files)),
                 stringsAsFactors=FALSE, row.names="key")
-  tracings <- read.neurons(paths, read.vaa3dflip, df=df,
+  tracings <- read.neurons(paths, df=df,
                            neuronnames=rownames(df))
   
   # see which neurons were traced in Vaa3d and therefore need calibrating
@@ -65,7 +65,7 @@ readAllClusters<-function(x) {
                 stringsAsFactors=FALSE, row.names="key")
   df$parentcluster=factor(sub("[A-Z]+","", df$cluster ))
   non_dup_paths <- paths[!duplicated(basename(paths))]
-  tracings <- read.neurons(non_dup_paths, read.vaa3dflip, df=df,
+  tracings <- read.neurons(non_dup_paths, df=df,
                            neuronnames=rownames(df))
   
   # see which neurons were traced in Vaa3d and therefore need calibrating
