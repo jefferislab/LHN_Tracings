@@ -1,0 +1,123 @@
+---
+title: "ClusteringClusters"
+author: "Greg and Tiago"
+date: "29 July 2014"
+output: html_document
+---
+
+Trial clustering of some Vaa3d traces of LHN primary neurites/dendrites/axons
+
+```{r install-packages, eval=FALSE}
+# once only
+library(devtools)
+install_github('jefferis/nat')
+install_github('jefferislab/nat.templatebrains')
+install_github('jefferislab/nat.flybrains')
+install_github('jefferislab/nat.nblast')
+install_github('yihui/knitr')
+```
+
+```{r setup}
+library(nat)
+library(nat.flybrains)
+library(nat.nblast)
+library(knitr)
+knit_hooks$set(rgl = hook_rgl)
+knit_hooks$set(webgl = hook_webgl)
+opts_chunk$set(cache=TRUE)
+```
+
+```{r define-functions}
+#' read in all swc tracings in a given folder and its subfolders
+#' this works for calibrated traces (Fiji) and also adds calibration for
+#' Vaa3d traces (uncalibrated)
+readAllClusters<-function(x) {
+  paths <- dir(x, full.names = TRUE, pattern = 'swc$', recursive=TRUE)
+  files=basename(paths)
+  files=unique(files)
+  # make a data.frame with information about each tracing based on file names
+  df=data.frame(file=files, key=sub("\\.swc","",files), 
+                line=factor(sub("(.*)_([LR])_.*","\\1",files)),
+                side=factor(sub(".*_([LR])_.*","\\1",files)),
+                cluster=factor(sub("(.*)_([LR])_(.*)\\.[^.]+","\\3",files)),
+                stringsAsFactors=FALSE, row.names="key")
+  df$parentcluster=factor(sub("[A-Z]+","", df$cluster ))
+  non_dup_paths <- paths[!duplicated(basename(paths))]
+  tracings <- read.neurons(non_dup_paths, df=df,
+                           neuronnames=rownames(df))
+  
+  # see which neurons were traced in Vaa3d and therefore need calibrating
+  # vaa3d writes, in the second line a header which looks like
+  # "#v3d_traced_neuron"
+  headers=sapply(non_dup_paths,function(f) readLines(f,2)[2])
+  vaa3dneurons=grepl("v3d_traced_neuron", headers, fixed=TRUE)
+  # fix the vaa3d neurons
+  tracings[vaa3dneurons]=tracings[vaa3dneurons]*JFRC2$voxdims
+  
+  tracings
+}
+
+readCluster<-function(x) {
+  readAllClusters(x)
+}
+
+frontalView <- function() {
+  par3d(userMatrix=diag(c(1, -1, -1, 1)))
+}
+rearView <- function() {
+  par3d(userMatrix=diag(c(-1, -1, 1, 1)))
+}
+
+```
+
+```{r read-neurons, rgl=TRUE}
+#foo <- readCluster("/Volumes/JData3/JPeople/Tiago/Tracings/7")
+foo <- readAllClusters("/Users/frechter/projects/Shahar/Anatomytypes_tracing/")
+open3d()
+plot3d(foo, col=factor(line))
+frontalView()
+```
+
+```{r mirror-to-left, rgl=T}
+# mirror everyone to left (i.e. only mirroring those on the right)
+clear3d()
+fool=mirror_brain(foo, JFRC2, subset=subset(foo,side=="R",rval='name'), .progress='text')
+plot3d(fool, col=factor(line), soma=TRUE)
+frontalView()
+```
+
+```{r allbyallsearch}
+library(nat.nblast)
+# convert to dot props for search
+fool.dps=dotprops(fool,k=5,resample=1)
+fool.scoremat=nblast_allbyall(fool.dps)
+frontalView()
+```
+
+```{r clustering}
+fool.hc=nhclust(scoremat=fool.scoremat)
+# plot dendrogram
+plot(fool.hc)
+# same, colouring clusters
+library(dendroextras)
+plot(color_clusters(fool.hc,k=2))
+frontalView()
+```
+
+```{r cluster-plot3d, rgl=TRUE}
+# now plot in 3d
+clear3d()
+plot3d(JFRC2NP.surf,'LH_L', alpha=0.3)
+plot3d(fool.hc,h=10, groups=14, db=fool, soma=TRUE, lwd=2)
+plot3d(JFRC2)
+frontalView()
+```
+
+```{r cluster-plot3d-rear, rgl=TRUE}
+clear3d()
+plot3d(JFRC2NP.surf,'LH_L', alpha=0.3)
+plot3d(fool.hc,h=10, db=fool, soma=TRUE, lwd=2)
+plot3d(JFRC2)
+rearView()
+```
+
