@@ -81,7 +81,7 @@ frontalView()
 ```{r mirror-to-left, rgl=T}
 # mirror everyone to left (i.e. only mirroring those on the right)
 clear3d()
-fool=mirror_brain(foo, JFRC2, subset=subset(foo,side=="R",rval='name'), .progress='text')
+fool=mirror_brain(foo, JFRC2, subset=subset(foo,side=="R",rval='name'))
 plot3d(fool, col=factor(line), soma=TRUE)
 frontalView()
 ```
@@ -89,7 +89,7 @@ frontalView()
 ```{r allbyallsearch}
 library(nat.nblast)
 # convert to dot props for search
-fool.dps=dotprops(fool,k=5,resample=1, .progress='text')
+fool.dps=dotprops(fool,k=5,resample=1)
 fool.scoremat=nblast_allbyall(fool.dps)
 frontalView()
 ```
