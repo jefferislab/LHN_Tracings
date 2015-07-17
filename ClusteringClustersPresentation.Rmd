@@ -80,10 +80,10 @@ readAllClusters<-function(x) {
 }
 
 frontalView <- function() {
-  par3d(userMatrix=structure(c(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1), .Dim = c(4L, 4L)))
+  par3d(userMatrix=diag(c(1, -1, -1, 1)))
 }
 rearView <- function() {
-  par3d(userMatrix=structure(c(-1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1), .Dim = c(4L, 4L)))
+  par3d(userMatrix=diag(c(-1, -1, 1, 1)))
 }
 
 ```
