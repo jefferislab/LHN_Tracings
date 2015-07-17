@@ -81,7 +81,7 @@ frontalView()
 ```{r mirror-to-left, rgl=T}
 # mirror everyone to left (i.e. only mirroring those on the right)
 clear3d()
-fool=mirror_brain(foo, JFRC2, subset=subset(foo,side=="R",rval='name'), .progress='text')
+fool=mirror_brain(foo, JFRC2, subset=subset(foo,side=="R",rval='name'))
 plot3d(fool, col=factor(line), soma=TRUE)
 frontalView()
 ```
